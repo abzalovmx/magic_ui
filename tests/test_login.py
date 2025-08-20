@@ -1,6 +1,5 @@
-from selenium.webdriver.common.by import By
 import os
-
+from pages.customer_login import CustomerLogin
 
 # не смог разобраться с прокси, временное решение
 for var in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"]:
@@ -10,16 +9,15 @@ for var in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"]:
 
 
 def test_incorrect_login(driver):
-    driver.get('https://magento.softwaretestingboard.com/customer/account/login')
-    email_field = driver.find_element(By.ID, 'email')
-    password_field = driver.find_element(By.ID, 'pass')
-    button = driver.find_element(By.ID, 'send2')
-    email_field.send_keys('asdad@dasd.com')
-    password_field.send_keys('asd')
-    button.click()
-    error_alert = driver.find_element(
-        By.CSS_SELECTOR, '[data-bind="html: $parent.prepareMessageForHtml(message.text)"]'
-    )
-    assert  error_alert.text == (
+    login_page = CustomerLogin(driver)
+    login_page.open_page()
+    login_page.fill_login_form('user@gmail.com', 'password')
+    login_page.check_error_alert_text_is(
         'The account sign-in was incorrect or your account is disabled temporarily. Please wait and try again later.'
     )
+
+def test_correct_login(driver):
+    login_page = CustomerLogin(driver)
+    login_page.open_page()
+    login_page.fill_login_form('user', 'password')
+    login_page.check_error_alert_text_is('sss')
